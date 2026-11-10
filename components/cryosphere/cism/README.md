@@ -881,8 +881,10 @@ counts: **94 tests / 380 assertions** (basal 15/41, cap 22/48, flowlaw
 | `cism_velo.esm` | 15 | 155 | **DivaGeometry** (4 tests): dusrf/taud at rel 1e-11, θ/F/effecpress_stag at rel 1e-12, the max_slope clamp from the source formula; **DivaIntegrals** (5 tests): efvs, omega_k, omega, the staggers and the inactive-cell guard; **DivaVelocity** (6 tests): the exact β chain at rel 0.0 and the 3-D profile at ≤ 2.9e-16 |
 | `cism_cap.esm` | 22 | 48 | see the cap section's test table |
 
-(`esm units --check` is clean apart from the pre-existing BasalTraction
-fractional-exponent notices, unchanged from stage2.)
+(`esm units --check` is clean on all eleven files; basal and velo report
+the standard "no dimensional mismatch found; run without --check to see why
+equations were not checked" message for their fractional-exponent rows,
+unchanged from stage2.)
 
 ### Coverage limitations (this data window)
 
