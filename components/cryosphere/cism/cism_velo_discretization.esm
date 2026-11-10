@@ -15,6 +15,10 @@
    "bc:none",
    "spec:9.6.8"
   ],
+  "created": "2026-11-06T00:00:00Z",
+  "authors": [
+   "EqESM project contributors"
+  ],
   "references": [
    {
     "citation": "CISM (Community Ice Sheet Model) cismwrap_3_00_002 / cism_main_3.00.002, as built in CESM cesm3.0-alphabranch (checkout stage1/cesm/components/cism, reference run T1850Gg/f09_g17_gris20): libglissade/glissade_basal_traction.F90, libglissade/glissade_therm.F90, libglissade/glissade_grid_operators.F90, libglissade/glissade_velo_higher.F90, libglissade/glissade_mass_balance.F90, libglimmer/glimmer_physcon.F90, libglimmer/glimmer_utils.F90, libglide/glide_types.F90, libglide/glide_setup.F90, libglad/glad_main.F90, libglad/glad_timestep.F90, libglad/glad_output_states.F90, libglad/glad_output_fluxes.F90, drivers/cpl/nuopc/glc_import_export.F90 - the reference implementation these components are transcribed from.",
@@ -33,10 +37,6 @@
     "citation": "EarthSciModels - the authoritative .esm corpus this component lives in.",
     "url": "https://github.com/EarthSciML/EarthSciModels"
    }
-  ],
-  "created": "2026-11-06T00:00:00Z",
-  "authors": [
-   "EqESM project contributors"
   ]
  },
  "metaparameters": {
