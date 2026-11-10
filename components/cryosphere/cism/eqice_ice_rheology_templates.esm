@@ -1,0 +1,135 @@
+{
+ "esm": "1.0.0",
+ "metadata": {
+  "name": "ice_rheology_templates",
+  "description": "TEMPORARY COPY of the EqIce ice_rheology_templates library, kept in the CISM component only because the EqIce project is not yet upstream in EarthSciModels (no EqIce branch or PR exists as of 2026-11-10). The CISM components import these laws by reference through this file; it is not itself a CISM law and must not be edited to carry CISM-specific logic. The templates and every value in them are byte-identical to the eqice stage2 originals (eqice/stage2/ice_rheology_templates.esm); when the EqIce project's components land in EarthSciModels, the importing CISM files must switch back to importing this library by reference and this copy is deleted.",
+  "created": "2026-11-06T00:00:00Z",
+  "authors": [
+   "EqESM project contributors"
+  ],
+  "references": [
+   {
+    "citation": "PISM v2.3.2 (the eqice project's reference implementation): basalstrength/MohrCoulombPointwise.cc, MohrCoulombYieldStress.cc, basal_resistance.cc; rheology/FlowLaw.cc (softness_paterson_budd), util/EnthalpyConverter.cc (melting_temperature)."
+   },
+   {
+    "citation": "The eqice project (github.com/earthsciml/eqice), stage2/ice_rheology_templates.esm - the authoritative source of these templates; this file is a temporary copy pending the EqIce EarthSciModels PR."
+   },
+   {
+    "citation": "EarthSciModels - the authoritative .esm corpus this component lives in.",
+    "url": "https://github.com/EarthSciML/EarthSciModels"
+   }
+  ]
+ },
+ "expression_templates": {
+  "pressure_melting_temperature": {
+   "description": "Pressure melting point T_m(p) = T_melting - beta*p (EnthalpyConverter::melting_temperature).",
+   "params": [
+    "p"
+   ],
+   "match": {
+    "op": "pressure_melting_temperature",
+    "args": [
+     "p"
+    ]
+   },
+   "body": {
+    "op": "-",
+    "args": [
+     "T_melting",
+     {
+      "op": "*",
+      "args": [
+       "beta_Clausius_Clapeyron",
+       "p"
+      ]
+     }
+    ]
+   }
+  },
+  "arrhenius_softness": {
+   "description": "Arrhenius softness A*exp(-Q/(R*T)) (FlowLaw::softness_paterson_budd single-branch form).",
+   "params": [
+    "A",
+    "Q",
+    "T"
+   ],
+   "match": {
+    "op": "arrhenius_softness",
+    "args": [
+     "A",
+     "Q",
+     "T"
+    ]
+   },
+   "body": {
+    "op": "*",
+    "args": [
+     "A",
+     {
+      "op": "exp",
+      "args": [
+       {
+        "op": "/",
+        "args": [
+         {
+          "op": "-",
+          "args": [
+           "Q"
+          ]
+         },
+         {
+          "op": "*",
+          "args": [
+           "R_ideal_gas",
+           "T"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "pb_softness": {
+   "description": "Paterson-Budd softness A(T_pa): cold branch (A_cold,Q_cold) below T_critical, warm branch above (FlowLaw::softness_paterson_budd).",
+   "params": [
+    "T_pa"
+   ],
+   "match": {
+    "op": "pb_softness",
+    "args": [
+     "T_pa"
+    ]
+   },
+   "body": {
+    "op": "ifelse",
+    "args": [
+     {
+      "op": "<",
+      "args": [
+       "T_pa",
+       "T_critical"
+      ]
+     },
+     {
+      "op": "arrhenius_softness",
+      "args": [
+       "A_cold",
+       "Q_cold",
+       "T_pa"
+      ]
+     },
+     {
+      "op": "arrhenius_softness",
+      "args": [
+       "A_warm",
+       "Q_warm",
+       "T_pa"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

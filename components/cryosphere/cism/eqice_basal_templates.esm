@@ -1,0 +1,264 @@
+{
+ "esm": "1.0.0",
+ "metadata": {
+  "name": "basal_templates",
+  "description": "TEMPORARY COPY of the EqIce basal_templates library, kept in the CISM component only because the EqIce project is not yet upstream in EarthSciModels (no EqIce branch or PR exists as of 2026-11-10). The CISM components import these laws by reference through this file; it is not itself a CISM law and must not be edited to carry CISM-specific logic. The templates and every value in them are byte-identical to the eqice stage2 originals (eqice/stage2/basal_templates.esm); when the EqIce project's components land in EarthSciModels, the importing CISM files must switch back to importing this library by reference and this copy is deleted.",
+  "created": "2026-11-06T00:00:00Z",
+  "authors": [
+   "EqESM project contributors"
+  ],
+  "references": [
+   {
+    "citation": "PISM v2.3.2 (the eqice project's reference implementation): basalstrength/MohrCoulombPointwise.cc, MohrCoulombYieldStress.cc, basal_resistance.cc; rheology/FlowLaw.cc (softness_paterson_budd), util/EnthalpyConverter.cc (melting_temperature)."
+   },
+   {
+    "citation": "The eqice project (github.com/earthsciml/eqice), stage2/basal_templates.esm - the authoritative source of these templates; this file is a temporary copy pending the EqIce EarthSciModels PR."
+   },
+   {
+    "citation": "EarthSciModels - the authoritative .esm corpus this component lives in.",
+    "url": "https://github.com/EarthSciML/EarthSciModels"
+   }
+  ]
+ },
+ "expression_templates": {
+  "overburden_pressure": {
+   "description": "Ice overburden pressure P = rho_ice * g * H (MohrCoulombYieldStress::update_impl).",
+   "params": [
+    "rho_ice",
+    "g",
+    "H"
+   ],
+   "match": {
+    "op": "overburden_pressure",
+    "args": [
+     "rho_ice",
+     "g",
+     "H"
+    ]
+   },
+   "body": {
+    "op": "*",
+    "args": [
+     "rho_ice",
+     "g",
+     "H"
+    ]
+   }
+  },
+  "mohr_coulomb_N_interior": {
+   "description": "Un-clamped Tulaczyk et al. (2000) effective pressure N_interior = N0 * (delta*P/N0)^s * 10^((e0/Cc)*(1-s)) with s = water_thickness/W_till_max (MohrCoulombPointwise::effective_pressure; the 10^ factor is the e0/Cc compressibility branch).",
+   "params": [
+    "delta",
+    "P_overburden",
+    "water_thickness"
+   ],
+   "match": {
+    "op": "mohr_coulomb_N_interior",
+    "args": [
+     "delta",
+     "P_overburden",
+     "water_thickness"
+    ]
+   },
+   "body": {
+    "op": "*",
+    "args": [
+     "N0",
+     {
+      "op": "^",
+      "args": [
+       {
+        "op": "/",
+        "args": [
+         {
+          "op": "*",
+          "args": [
+           "delta",
+           "P_overburden"
+          ]
+         },
+         "N0"
+        ]
+       },
+       {
+        "op": "/",
+        "args": [
+         "water_thickness",
+         "W_till_max"
+        ]
+       }
+      ]
+     },
+     {
+      "op": "^",
+      "args": [
+       10.0,
+       {
+        "op": "*",
+        "args": [
+         {
+          "op": "/",
+          "args": [
+           "e0",
+           "Cc"
+          ]
+         },
+         {
+          "op": "-",
+          "args": [
+           1.0,
+           {
+            "op": "/",
+            "args": [
+             "water_thickness",
+             "W_till_max"
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "basal_speed_squared": {
+   "description": "Regularized squared sliding speed magreg2 = eps^2 + vx^2 + vy^2 with eps the plastic regularization (the Schoof epsilon of IceBasalResistancePlasticLaw; shared by all three drag laws).",
+   "params": [
+    "eps",
+    "vx",
+    "vy"
+   ],
+   "match": {
+    "op": "basal_speed_squared",
+    "args": [
+     "eps",
+     "vx",
+     "vy"
+    ]
+   },
+   "body": {
+    "op": "+",
+    "args": [
+     {
+      "op": "^",
+      "args": [
+       "eps",
+       2
+      ]
+     },
+     {
+      "op": "^",
+      "args": [
+       "vx",
+       2
+      ]
+     },
+     {
+      "op": "^",
+      "args": [
+       "vy",
+       2
+      ]
+     }
+    ]
+   }
+  },
+  "basal_speed": {
+   "description": "Regularized sliding speed |v_reg| = sqrt(eps^2 + vx^2 + vy^2) (IceBasalResistanceRegularizedLaw).",
+   "params": [
+    "eps",
+    "vx",
+    "vy"
+   ],
+   "match": {
+    "op": "basal_speed",
+    "args": [
+     "eps",
+     "vx",
+     "vy"
+    ]
+   },
+   "body": {
+    "op": "sqrt",
+    "args": [
+     {
+      "op": "basal_speed_squared",
+      "args": [
+       "eps",
+       "vx",
+       "vy"
+      ]
+     }
+    ]
+   }
+  },
+  "pseudo_plastic_drag": {
+   "description": "Pseudo-plastic drag coefficient beta = tauc * (eps^2 + vx^2 + vy^2)^((q-1)/2) * u_threshold^(-q) (IceBasalResistancePseudoPlasticLaw::drag; the sliding_scale_factor branch is off by default: the config value is -1, so Aq = 1).",
+   "params": [
+    "tauc",
+    "q",
+    "u_threshold",
+    "eps",
+    "vx",
+    "vy"
+   ],
+   "match": {
+    "op": "pseudo_plastic_drag",
+    "args": [
+     "tauc",
+     "q",
+     "u_threshold",
+     "eps",
+     "vx",
+     "vy"
+    ]
+   },
+   "body": {
+    "op": "*",
+    "args": [
+     "tauc",
+     {
+      "op": "^",
+      "args": [
+       {
+        "op": "basal_speed_squared",
+        "args": [
+         "eps",
+         "vx",
+         "vy"
+        ]
+       },
+       {
+        "op": "/",
+        "args": [
+         {
+          "op": "-",
+          "args": [
+           "q",
+           1.0
+          ]
+         },
+         2.0
+        ]
+       }
+      ]
+     },
+     {
+      "op": "^",
+      "args": [
+       "u_threshold",
+       {
+        "op": "-",
+        "args": [
+         "q"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}
